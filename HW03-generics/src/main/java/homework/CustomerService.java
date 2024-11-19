@@ -8,7 +8,7 @@ import java.util.AbstractMap;
 public class CustomerService {
 
     private static Comparator<Customer> byScores = (c1, c2) -> Long.compare(c1.getScores(), c2.getScores());
-    private static TreeMap <Customer, String> customers = new TreeMap<>(byScores);
+    private static NavigableMap<Customer, String> customers = new TreeMap<>(byScores);
 
     public Map.Entry<Customer, String> getSmallest() {
         Map.Entry<Customer, String> smallestEntry = customers.firstEntry();
