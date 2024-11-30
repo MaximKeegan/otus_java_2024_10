@@ -5,9 +5,11 @@ import java.util.ArrayList;
 import java.util.List;
 import annotations.*;
 
-public class TestRunner {
 
-    public static void runTests(String className) {
+public class TestRunner {
+    public static TestResult runTests(String className) {
+        TestResult result = new TestResult();
+
         try {
             Class<?> testClass = Class.forName(className);
             List<Method> beforeMethods = new ArrayList<>();
@@ -24,12 +26,11 @@ public class TestRunner {
                 }
             }
 
-            int totalTests = testMethods.size();
-            int passedTests = 0;
-            int failedTests = 0;
-
             for (Method testMethod : testMethods) {
                 Object testInstance = testClass.getDeclaredConstructor().newInstance();
+                boolean success = true;
+                Throwable testError = null;
+
                 try {
                     for (Method before : beforeMethods) {
                         before.setAccessible(true);
@@ -38,30 +39,26 @@ public class TestRunner {
 
                     testMethod.setAccessible(true);
                     testMethod.invoke(testInstance);
-                    System.out.println("Test passed: " + testMethod.getName());
-                    passedTests++;
-                } catch (Exception e) {
-                    System.out.println("Test failed: " + testMethod.getName() + ". Reason: " + e.getCause());
-                    failedTests++;
+                } catch (Throwable t) {
+                    success = false;
+                    testError = t.getCause() != null ? t.getCause() : t;
                 } finally {
                     for (Method after : afterMethods) {
-                        after.setAccessible(true);
                         try {
+                            after.setAccessible(true);
                             after.invoke(testInstance);
-                        } catch (Exception e) {
-                            System.out.println("Error in @After method: " + e.getCause());
+                        } catch (Exception ignored) {
                         }
                     }
                 }
-            }
 
-            System.out.println("Test run summary:");
-            System.out.println("Total tests: " + totalTests);
-            System.out.println("Passed: " + passedTests);
-            System.out.println("Failed: " + failedTests);
+                result.addTestResult(success, testMethod.getName(), testError);
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        return result;
     }
 }
