@@ -3,7 +3,7 @@ include("HW01-gradle")
 include("HW03-generics")
 include("L06-annotations")
 include("HW06-test-framework")
-
+include("L08-gc:demo")
 
 pluginManagement {
     val jgitver: String by settings
