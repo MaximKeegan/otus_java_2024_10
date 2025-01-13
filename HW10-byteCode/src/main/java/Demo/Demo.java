@@ -1,4 +1,4 @@
-package ru.keegan.byteCode;
+package Demo;
 
 public class Demo {
     public static void main(String[] args) {
@@ -10,5 +10,6 @@ public class Demo {
         proxy.calculation(6);
         proxy.calculation(3, 4);
         proxy.calculation(1, 2, "test");
+        proxy.noLogMethod();
     }
 }

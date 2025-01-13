@@ -1,4 +1,4 @@
-package ru.keegan.byteCode;
+package Demo;
 
 import java.lang.annotation.*;
 
