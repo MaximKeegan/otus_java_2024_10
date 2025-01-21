@@ -1,9 +1,6 @@
 package homework;
 
-import java.util.Comparator;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.AbstractMap;
+import java.util.*;
 
 public class CustomerService {
 
