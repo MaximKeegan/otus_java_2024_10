@@ -5,6 +5,9 @@ include("L06-annotations")
 include("HW06-test-framework")
 include("L08-gc:demo")
 include("HW12-ATM")
+include("HW10-byteCode")
+
+
 
 pluginManagement {
     val jgitver: String by settings
