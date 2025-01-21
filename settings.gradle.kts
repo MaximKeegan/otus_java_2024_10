@@ -6,7 +6,10 @@ include("HW06-test-framework")
 include("L08-gc:demo")
 include("HW10-byteCode")
 
-
+include("L12-solid")
+include("L13-creationalPatterns")
+include("L15-structuralPatterns:demo")
+include("L15-structuralPatterns:homework")
 
 pluginManagement {
     val jgitver: String by settings
