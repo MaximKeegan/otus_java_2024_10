@@ -2,19 +2,25 @@ package ru.otus.handler;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import ru.otus.listener.Listener;
 import ru.otus.model.Message;
+import ru.otus.processor.DateTimeProvider;
+import ru.otus.processor.FixedDateTimeProvider;
 import ru.otus.processor.Processor;
+import ru.otus.processor.ProcessorEvenSecond;
 
 class ComplexProcessorTest {
 
@@ -89,6 +95,33 @@ class ComplexProcessorTest {
         // then
         verify(listener, times(1)).onUpdated(message);
     }
+
+    @Test
+    void evenSecondProcessorTest() {
+        // Создаем мок для DateTimeProvider
+        LocalDateTime evenSecondTime = LocalDateTime.of(2023, 10, 1, 12, 0, 2); // Четная секунда
+        DateTimeProvider dateTimeProvider = new FixedDateTimeProvider(evenSecondTime);
+
+        ProcessorEvenSecond processor = new ProcessorEvenSecond(dateTimeProvider);
+        Message message = new Message.Builder(1L).build();
+
+        // Проверяем, что исключение выбрасывается
+        assertThrows(IllegalStateException.class, () -> processor.process(message));
+    }
+
+    @Test
+    void oddSecondProcessorTest() {
+        // Создаем мок для DateTimeProvider
+        LocalDateTime evenSecondTime = LocalDateTime.of(2023, 10, 1, 12, 0, 3); // Нечетная секунда
+        DateTimeProvider dateTimeProvider = new FixedDateTimeProvider(evenSecondTime);
+
+        ProcessorEvenSecond processor = new ProcessorEvenSecond(dateTimeProvider);
+        Message message = new Message.Builder(1L).build();
+
+        // Проверяем, что исключение не выбрасывается
+        assertDoesNotThrow(() -> processor.process(message));
+    }
+
 
     private static class TestException extends RuntimeException {
         public TestException(String message) {
