@@ -1,7 +1,9 @@
 package homework;
 import java.util.*;
 
-// Основной класс ATM (реализует принципы SOLID, включая открытость-закрытость для модификаций)
+/**
+ * Основной класс ATM (реализует принципы SOLID, включая открытость-закрытость для модификаций)
+ */
 class BasicATM implements ATM {
     private final Map<Integer, CashCell> cashCells = new TreeMap<>(Collections.reverseOrder());
 
