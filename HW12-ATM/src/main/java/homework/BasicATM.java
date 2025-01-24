@@ -7,7 +7,7 @@ import java.util.*;
 class BasicATM implements ATM {
     private final Map<Integer, CashCell> cashCells = new TreeMap<>(Collections.reverseOrder());
 
-    public BasicATM(List<Integer> values) {
+    public BasicATM(Iterable<Integer> values) {
         for (int value : values) {
             cashCells.put(value, new CashCell(value));
         }
