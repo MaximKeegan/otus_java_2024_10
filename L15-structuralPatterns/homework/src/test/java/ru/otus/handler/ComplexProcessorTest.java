@@ -18,7 +18,6 @@ import org.junit.jupiter.api.Test;
 import ru.otus.listener.Listener;
 import ru.otus.model.Message;
 import ru.otus.processor.DateTimeProvider;
-import ru.otus.processor.FixedDateTimeProvider;
 import ru.otus.processor.Processor;
 import ru.otus.processor.ProcessorEvenSecond;
 
@@ -98,9 +97,12 @@ class ComplexProcessorTest {
 
     @Test
     void evenSecondProcessorTest() {
-        // Создаем мок для DateTimeProvider
-        LocalDateTime evenSecondTime = LocalDateTime.of(2023, 10, 1, 12, 0, 2); // Четная секунда
-        DateTimeProvider dateTimeProvider = new FixedDateTimeProvider(evenSecondTime);
+        DateTimeProvider dateTimeProvider = new DateTimeProvider() {
+            @Override
+            public LocalDateTime getDate() {
+                return LocalDateTime.of(2023, 10, 1, 12, 0, 2);
+            }
+        };
 
         ProcessorEvenSecond processor = new ProcessorEvenSecond(dateTimeProvider);
         Message message = new Message.Builder(1L).build();
@@ -111,9 +113,12 @@ class ComplexProcessorTest {
 
     @Test
     void oddSecondProcessorTest() {
-        // Создаем мок для DateTimeProvider
-        LocalDateTime evenSecondTime = LocalDateTime.of(2023, 10, 1, 12, 0, 3); // Нечетная секунда
-        DateTimeProvider dateTimeProvider = new FixedDateTimeProvider(evenSecondTime);
+        DateTimeProvider dateTimeProvider = new DateTimeProvider() {
+            @Override
+            public LocalDateTime getDate() {
+                return LocalDateTime.of(2023, 10, 1, 12, 0, 3);
+            }
+        };
 
         ProcessorEvenSecond processor = new ProcessorEvenSecond(dateTimeProvider);
         Message message = new Message.Builder(1L).build();
