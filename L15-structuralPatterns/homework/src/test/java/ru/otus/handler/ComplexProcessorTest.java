@@ -97,12 +97,10 @@ class ComplexProcessorTest {
 
     @Test
     void evenSecondProcessorTest() {
-        DateTimeProvider dateTimeProvider = new DateTimeProvider() {
-            @Override
-            public LocalDateTime getDate() {
-                return LocalDateTime.of(2023, 10, 1, 12, 0, 2);
-            }
-        };
+        DateTimeProvider dateTimeProvider = mock(DateTimeProvider.class);
+
+        LocalDateTime oddSecondTime = LocalDateTime.of(2023, 10, 1, 12, 0, 2); // Нечетная секунда
+        when(dateTimeProvider.getDate()).thenReturn(oddSecondTime);
 
         ProcessorEvenSecond processor = new ProcessorEvenSecond(dateTimeProvider);
         Message message = new Message.Builder(1L).build();
@@ -113,12 +111,10 @@ class ComplexProcessorTest {
 
     @Test
     void oddSecondProcessorTest() {
-        DateTimeProvider dateTimeProvider = new DateTimeProvider() {
-            @Override
-            public LocalDateTime getDate() {
-                return LocalDateTime.of(2023, 10, 1, 12, 0, 3);
-            }
-        };
+        DateTimeProvider dateTimeProvider = mock(DateTimeProvider.class);
+
+        LocalDateTime oddSecondTime = LocalDateTime.of(2023, 10, 1, 12, 0, 3); // Нечетная секунда
+        when(dateTimeProvider.getDate()).thenReturn(oddSecondTime);
 
         ProcessorEvenSecond processor = new ProcessorEvenSecond(dateTimeProvider);
         Message message = new Message.Builder(1L).build();
