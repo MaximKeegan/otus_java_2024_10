@@ -10,7 +10,7 @@ import java.io.IOException;
 
 public class ResourcesFileLoader implements Loader {
 
-    private String fileName;
+    private final String fileName;
 
     public ResourcesFileLoader(String fileName) {
         this.fileName = fileName;
