@@ -24,7 +24,7 @@ public class ResourcesFileLoader implements Loader {
         // Загружаем файл из ресурсов
         try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(fileName)) {
             if (inputStream == null) {
-                throw new IllegalArgumentException("Файл не найден: " + fileName);
+                throw new IllegalArgumentException("File not found: " + fileName);
             }
 
             // Парсим JSON в список объектов Measurement

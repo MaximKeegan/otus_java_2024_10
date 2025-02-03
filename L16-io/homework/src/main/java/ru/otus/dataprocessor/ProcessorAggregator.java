@@ -12,9 +12,6 @@ public class ProcessorAggregator implements Processor {
         TreeMap<String, Double> result  = new TreeMap<>();
 
         for (Measurement measurement : data) {
-//            var sum = result.getOrDefault(measurement.name(), (double) 0);
-//            sum += measurement.value();
-//            result.put(measurement.name(), sum);
             result.merge(measurement.name(), measurement.value(), Double::sum);
         }
 
