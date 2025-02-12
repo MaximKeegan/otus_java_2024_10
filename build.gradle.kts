@@ -4,8 +4,11 @@ import org.gradle.plugins.ide.idea.model.IdeaLanguageLevel
 
 plugins {
     idea
+    id("fr.brouillard.oss.gradle.jgitver")
     id("io.spring.dependency-management")
     id("org.springframework.boot") apply false
+    id("name.remal.sonarlint") apply false
+    id("com.diffplug.spotless") apply false
 }
 
 idea {
