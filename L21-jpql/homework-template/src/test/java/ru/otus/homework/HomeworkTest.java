@@ -16,7 +16,6 @@ import org.hibernate.engine.jdbc.spi.JdbcServices;
 import org.hibernate.engine.jdbc.spi.SqlStatementLogger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import ru.otus.crm.model.Address;
 import ru.otus.crm.model.Client;
@@ -28,8 +27,6 @@ class HomeworkTest {
     private Metadata metadata;
     private SessionFactory sessionFactory;
 
-    // Кроме удаления @Disabled, тестовый класс менять нельзя
-
     @BeforeEach
     public void setUp() {
         makeTestDependencies();
@@ -40,7 +37,6 @@ class HomeworkTest {
         sessionFactory.close();
     }
 
-    @Disabled("Удалить при выполнении ДЗ")
     @Test
     void testHomeworkRequirementsForTablesCount() {
 
@@ -50,7 +46,6 @@ class HomeworkTest {
         assertThat(tables).hasSize(3);
     }
 
-    @Disabled("Удалить при выполнении ДЗ")
     @Test
     void testHomeworkRequirementsForUpdatesCount() {
         applyCustomSqlStatementLogger(new SqlStatementLogger(true, false, false, 0) {
@@ -78,7 +73,6 @@ class HomeworkTest {
         }
     }
 
-    @Disabled("Удалить при выполнении ДЗ")
     @Test
     void testForHomeworkRequirementsForClientReferences() throws Exception {
         var client = new Client(
@@ -89,7 +83,6 @@ class HomeworkTest {
         assertThatClientHasCorrectReferences(client);
     }
 
-    @Disabled("Удалить при выполнении ДЗ")
     @Test
     void testForHomeworkRequirementsForClonedClientReferences() throws Exception {
         var client = new Client(
