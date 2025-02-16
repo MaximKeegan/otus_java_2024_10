@@ -27,8 +27,6 @@ class HomeworkTest {
     private Metadata metadata;
     private SessionFactory sessionFactory;
 
-    // Кроме удаления @Disabled, тестовый класс менять нельзя
-
     @BeforeEach
     public void setUp() {
         makeTestDependencies();

@@ -3,10 +3,10 @@ package ru.otus.crm.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
-@AllArgsConstructor
+@Entity
 @Table(name = "address")
 public class Address {
     @Id

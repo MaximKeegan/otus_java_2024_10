@@ -13,14 +13,10 @@ import lombok.Setter;
 @Table(name = "client")
 public class Client implements Cloneable {
 
-    //    @Id
-    //    @SequenceGenerator(name = "client_gen", sequenceName = "client_seq", initialValue = 1, allocationSize = 1)
-    //    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "client_gen")
-    //    @Column(name = "id")
-    //    private Long id;
-
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @SequenceGenerator(name = "client_gen", sequenceName = "client_seq", initialValue = 1, allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "client_gen")
+    @Column(name = "id")
     private Long id;
 
     @Column(name = "name")
