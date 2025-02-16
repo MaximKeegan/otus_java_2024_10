@@ -22,8 +22,6 @@ public class Client implements Cloneable {
     @Column(name = "name")
     private String name;
 
-    //    @OneToOne(cascade = CascadeType.ALL)
-    //    @JoinColumn(name = "address_id", referencedColumnName = "id")
     @OneToOne(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
     private Address address;
 

@@ -13,9 +13,6 @@ import lombok.Setter;
 public class Phone {
 
     @Id
-    //    @SequenceGenerator(name = "phone_gen", sequenceName = "phone_seq", initialValue = 1, allocationSize = 1)
-    //    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "phone_gen")
-    //    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
