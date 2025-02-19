@@ -1,10 +1,19 @@
 package ru.otus.cachehw;
 
+import java.util.*;
+import org.hibernate.cfg.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ru.otus.cachehw.dbmigrations.MigrationsExecutorFlyway;
+import ru.otus.cachehw.models.Client;
+import ru.otus.cachehw.repository.DataTemplateHibernate;
+import ru.otus.cachehw.repository.HibernateUtils;
+import ru.otus.cachehw.sessionmanager.TransactionManagerHibernate;
 
 public class HWCacheDemo {
     private static final Logger logger = LoggerFactory.getLogger(HWCacheDemo.class);
+
+    public static final String HIBERNATE_CFG_FILE = "hibernate.cfg.xml";
 
     public static void main(String[] args) {
         new HWCacheDemo().demo();
@@ -28,5 +37,32 @@ public class HWCacheDemo {
         logger.info("getValue:{}", cache.get("1"));
         cache.remove("1");
         cache.removeListener(listener);
+
+        var configuration = new Configuration().configure(HIBERNATE_CFG_FILE);
+
+        var dbUrl = configuration.getProperty("hibernate.connection.url");
+        var dbUserName = configuration.getProperty("hibernate.connection.username");
+        var dbPassword = configuration.getProperty("hibernate.connection.password");
+
+        new MigrationsExecutorFlyway(dbUrl, dbUserName, dbPassword).executeMigrations();
+
+        var sessionFactory = HibernateUtils.buildSessionFactory(configuration, Client.class);
+
+        var transactionManager = new TransactionManagerHibernate(sessionFactory);
+        ///
+        var clientTemplate = new DataTemplateHibernate<>(Client.class);
+        ///
+        var dbServiceClient = new DbServiceClientImpl(transactionManager, clientTemplate);
+        var client = dbServiceClient.saveClient(new Client("dbServiceFirst"));
+
+        logger.info("clientInserted:{}", client);
+        var clientSelected = dbServiceClient
+                .getClientNoCache(client.getId())
+                .orElseThrow(() -> new RuntimeException("Client not found, id:" + client.getId()));
+        logger.info("clientSelectedNoCache:{}", clientSelected);
+        var clientSelectedCache = dbServiceClient
+                .getClient(client.getId())
+                .orElseThrow(() -> new RuntimeException("Client not found, id:" + client.getId()));
+        logger.info("clientSecondSelectedCache:{}", clientSelectedCache);
     }
 }
