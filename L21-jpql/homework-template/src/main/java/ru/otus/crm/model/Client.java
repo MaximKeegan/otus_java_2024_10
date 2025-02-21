@@ -1,12 +1,7 @@
 package ru.otus.crm.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.SequenceGenerator;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,6 +23,12 @@ public class Client implements Cloneable {
     @Column(name = "name")
     private String name;
 
+    @OneToOne(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Address address;
+
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private List<Phone> phones;
+
     public Client(String name) {
         this.id = null;
         this.name = name;
@@ -39,17 +40,37 @@ public class Client implements Cloneable {
     }
 
     public <E> Client(Long id, String name, Address address, List<Phone> phones) {
-        throw new UnsupportedOperationException();
+        this.id = id;
+        this.name = name;
+
+        if (address != null) {
+            this.address = address.clone();
+            this.address.setClient(this);
+        } else {
+            this.address = null;
+        }
+
+        if (phones != null) {
+            this.phones = new ArrayList<>();
+            for (Phone phone : phones) {
+                Phone phoneCopy = phone.clone();
+                phoneCopy.setClient(this);
+                this.phones.add(phoneCopy);
+            }
+        } else {
+            this.phones = null;
+        }
     }
 
     @Override
     @SuppressWarnings({"java:S2975", "java:S1182"})
     public Client clone() {
-        return new Client(this.id, this.name);
+        return new Client(this.id, this.name, this.address, this.phones);
     }
 
     @Override
     public String toString() {
-        return "Client{" + "id=" + id + ", name='" + name + '\'' + '}';
+        return "Client{" + "id=" + id + ", name='" + name + '\'' + ", phones='" + phones + '\'' + ", address='"
+                + address + '\'' + '}';
     }
 }
