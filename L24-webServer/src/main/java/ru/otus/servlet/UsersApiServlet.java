@@ -5,6 +5,8 @@ import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.SystemException;
+import java.io.BufferedReader;
 import java.io.IOException;
 import ru.otus.dao.UserDao;
 import ru.otus.model.User;
@@ -27,6 +29,31 @@ public class UsersApiServlet extends HttpServlet {
         User user = userDao.findById(extractIdFromRequest(request)).orElse(null);
 
         response.setContentType("application/json;charset=UTF-8");
+        ServletOutputStream out = response.getOutputStream();
+        out.print(gson.toJson(user));
+    }
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        response.setContentType("application/json;charset=UTF-8");
+
+        StringBuilder sb = new StringBuilder();
+        try (BufferedReader reader = request.getReader()) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+        }
+
+        Gson gson = new Gson();
+        User user = gson.fromJson(sb.toString(), User.class);
+
+        try {
+            userDao.saveUser(user);
+        } catch (SystemException e) {
+            response.sendError(
+                    HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal server error: " + e.getMessage());
+        }
+
         ServletOutputStream out = response.getOutputStream();
         out.print(gson.toJson(user));
     }

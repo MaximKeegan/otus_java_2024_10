@@ -7,6 +7,8 @@ import org.eclipse.jetty.security.HashLoginService;
 import org.eclipse.jetty.security.LoginService;
 import org.eclipse.jetty.util.resource.PathResourceFactory;
 import org.eclipse.jetty.util.resource.Resource;
+import ru.otus.dao.ClientsDao;
+import ru.otus.dao.DatabaseClientDao;
 import ru.otus.dao.InMemoryUserDao;
 import ru.otus.dao.UserDao;
 import ru.otus.helpers.FileSystemHelper;
@@ -35,6 +37,7 @@ public class WebServerWithBasicSecurityDemo {
 
     public static void main(String[] args) throws Exception {
         UserDao userDao = new InMemoryUserDao();
+        ClientsDao clientsDao = new DatabaseClientDao();
         Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().create();
         TemplateProcessor templateProcessor = new TemplateProcessorImpl(TEMPLATES_DIR);
 
@@ -46,8 +49,8 @@ public class WebServerWithBasicSecurityDemo {
         LoginService loginService = new HashLoginService(REALM_NAME, configResource);
         // LoginService loginService = new InMemoryLoginServiceImpl(userDao); // NOSONAR
 
-        UsersWebServer usersWebServer =
-                new UsersWebServerWithBasicSecurity(WEB_SERVER_PORT, loginService, userDao, gson, templateProcessor);
+        UsersWebServer usersWebServer = new UsersWebServerWithBasicSecurity(
+                WEB_SERVER_PORT, loginService, userDao, clientsDao, gson, templateProcessor);
 
         usersWebServer.start();
         usersWebServer.join();

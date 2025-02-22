@@ -1,6 +1,6 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <title>Пользователи</title>
+    <title>Клиенты</title>
     <script>
         function getUserById() {
             const userIdTextBox = document.getElementById('userIdTextBox');
@@ -44,9 +44,6 @@
 </head>
 
 <body>
-
-<p><a href="/clients">Управление клиентами</a></p>
-
 <h4>Получить пользователя по id</h4>
 <input type="text" id = "userIdTextBox" value="3" placeholder="Введите id пользователя">
 <button onclick="getUserById()">Получить</button>
@@ -60,23 +57,29 @@
 <pre id = "userCreatedContainer"></pre>
 
 
-<h4>Случайный пользователь</h4>
+<h4>Список клиентов</h4>
 <table style="width: 400px">
     <thead>
         <tr>
             <td style="width: 50px">Id</td>
             <td style="width: 150px">Имя</td>
-            <td style="width: 100px">Логин</td>
-            <td style="width: 100px">Пароль</td>
+            <td style="width: 150px">Адрес</td>
+            <td style="width: 150px">Телефоны</td>
         </tr>
     </thead>
     <tbody>
+    <#list clients as client>
         <tr>
-            <td>${randomUser.id}</td>
-            <td>${randomUser.name}</td>
-            <td>${randomUser.login}</td>
-            <td>${randomUser.password}</td>
+            <td>${client.id}</td>
+            <td>${client.name}</td>
+            <td>${client.address.address}</td>
+            <td>${client.listPhones()}</td>
         </tr>
+    <#else>
+        <tr>
+            <td colspan="2">пусто</td>
+        </tr>
+    </#list>
     </tbody>
 </table>
 </body>
