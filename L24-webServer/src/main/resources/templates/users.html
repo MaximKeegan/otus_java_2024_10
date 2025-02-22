@@ -11,14 +11,54 @@
                 .then(response => response.json())
                 .then(user => userDataContainer.innerHTML = JSON.stringify(user));
         }
+
+        function createUser() {
+            const userNameTextBox = document.getElementById('userNameTextBox');
+            const userLoginTextBox = document.getElementById('userLoginTextBox');
+            const userPasswordTextBox = document.getElementById('userPasswordTextBox');
+            const userCreatedContainer = document.getElementById('userCreatedContainer');
+
+            const userData = {
+                name: userNameTextBox.value,
+                login: userLoginTextBox.value,
+                password: userPasswordTextBox.value
+            };
+
+            fetch('api/user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(userData)
+            })
+                .then(response => response.json())
+                .then(user => {
+                    userCreatedContainer.innerHTML = JSON.stringify(user);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    userCreatedContainer.innerHTML = 'Error creating user';
+                });
+        }
     </script>
 </head>
 
 <body>
+
+<p><a href="/clients">Управление клиентами</a></p>
+
 <h4>Получить пользователя по id</h4>
 <input type="text" id = "userIdTextBox" value="3" placeholder="Введите id пользователя">
 <button onclick="getUserById()">Получить</button>
 <pre id = "userDataContainer"></pre>
+
+<h4>Создать пользователя</h4>
+<input type="text" id = "userNameTextBox" placeholder="Введите имя пользователя">
+<input type="text" id = "userLoginTextBox" placeholder="Введите логин пользователя">
+<input type="text" id = "userPasswordTextBox" placeholder="Введите пароль пользователя">
+<button onclick="createUser()">Создать</button>
+<pre id = "userCreatedContainer"></pre>
+
 
 <h4>Случайный пользователь</h4>
 <table style="width: 400px">
