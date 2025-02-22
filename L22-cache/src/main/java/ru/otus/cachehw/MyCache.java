@@ -1,13 +1,17 @@
 package ru.otus.cachehw;
 
+import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MyCache<K, V> implements HwCache<K, V> {
     // Надо реализовать эти методы
     private final Map<K, V> cache = new WeakHashMap<>();
-    private final CopyOnWriteArrayList<HwListener<K, V>> listeners = new CopyOnWriteArrayList<>();
+    private final List<HwListener<K, V>> listeners = new CopyOnWriteArrayList<>();
+    private static final Logger logger = LoggerFactory.getLogger(HWCacheDemo.class);
 
     @Override
     public void put(K key, V value) {
@@ -44,7 +48,12 @@ public class MyCache<K, V> implements HwCache<K, V> {
 
     private void notifyListeners(K key, V value, String action) {
         for (HwListener<K, V> listener : listeners) {
-            listener.notify(key, value, action);
+            try {
+                listener.notify(key, value, action);
+            } catch (Exception e) {
+                logger.info("Listener failed to process notification: " + e.getMessage());
+                e.printStackTrace();
+            }
         }
     }
 }
