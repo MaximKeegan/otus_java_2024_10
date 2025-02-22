@@ -10,9 +10,7 @@ import ru.otus.dao.ClientsDao;
 import ru.otus.dao.UserDao;
 import ru.otus.helpers.FileSystemHelper;
 import ru.otus.services.TemplateProcessor;
-import ru.otus.servlet.ClientsServlet;
-import ru.otus.servlet.UsersApiServlet;
-import ru.otus.servlet.UsersServlet;
+import ru.otus.servlet.*;
 
 public class UsersWebServerSimple implements UsersWebServer {
     private static final String START_PAGE_NAME = "index.html";
@@ -83,6 +81,12 @@ public class UsersWebServerSimple implements UsersWebServer {
         servletContextHandler.addServlet(
                 new ServletHolder(new ClientsServlet(templateProcessor, clientsDao)), "/clients");
         servletContextHandler.addServlet(new ServletHolder(new UsersApiServlet(userDao, gson)), "/api/user/*");
+        servletContextHandler.addServlet(new ServletHolder(new ClientsApiServlet(clientsDao, gson)), "/api/client");
+        servletContextHandler.addServlet(
+                new ServletHolder(new ClientsPhoneApiServlet(clientsDao, gson)), "/api/client/phone");
+        servletContextHandler.addServlet(
+                new ServletHolder(new ClientsAddressApiServlet(clientsDao, gson)), "/api/client/address");
+
         return servletContextHandler;
     }
 }

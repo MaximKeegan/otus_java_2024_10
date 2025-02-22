@@ -47,10 +47,18 @@ public class DatabaseClientDao implements ClientsDao {
             session.persist(
                     new Client(null, "Vasya", new Address(null, "AnyStreet"), List.of(new Phone(null, "13-555-22"))));
             session.persist(new Client(null, "Vasya", new Address(null, "AnyStreet"), null));
+            session.persist(new Client(null, "Vasya", null, null));
 
             session.getTransaction().commit();
 
             session.clear();
+        }
+    }
+
+    @Override
+    public Optional<Client> findById(long id) {
+        try (var session = sessionFactory.openSession()) {
+            return Optional.ofNullable(session.find(Client.class, id));
         }
     }
 
@@ -63,7 +71,103 @@ public class DatabaseClientDao implements ClientsDao {
 
     @Override
     public Optional<Client> createClient(Client client) {
-        return Optional.empty();
+        try (var session = sessionFactory.openSession()) {
+            session.getTransaction().begin();
+            session.persist(client);
+            session.getTransaction().commit();
+
+            session.clear();
+            return Optional.of(client.clone());
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public Optional<Client> addPhone(Long clientId, String number) {
+        try (var session = sessionFactory.openSession()) {
+            session.beginTransaction();
+
+            Client client = session.find(Client.class, clientId);
+            if (client == null) {
+                session.getTransaction().rollback();
+                return Optional.empty();
+            }
+            Phone phone = new Phone(null, number);
+            phone.setClient(client);
+
+            client.getPhones().add(phone);
+
+            session.merge(client);
+
+            session.getTransaction().commit();
+
+            session.detach(client);
+            return Optional.of(client.clone());
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public Optional<Client> deletePhone(Long clientId, String number) {
+        try (var session = sessionFactory.openSession()) {
+            session.beginTransaction();
+
+            Client client = session.find(Client.class, clientId);
+            if (client == null) {
+                session.getTransaction().rollback();
+                return Optional.empty();
+            }
+
+            boolean removed =
+                    client.getPhones().removeIf(phone -> phone.getNumber().equals(number));
+            if (!removed) {
+                session.getTransaction().rollback();
+                return Optional.of(client);
+            }
+
+            session.merge(client);
+            session.getTransaction().commit();
+            session.detach(client);
+            return Optional.of(client.clone());
+
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public Optional<Client> updateAddress(Long clientId, String address) {
+        try (var session = sessionFactory.openSession()) {
+            session.beginTransaction();
+
+            Client client = session.find(Client.class, clientId);
+            if (client == null) {
+                session.getTransaction().rollback();
+                return Optional.empty();
+            }
+
+            Address clientAddress = client.getAddress();
+            if (clientAddress != null) {
+                clientAddress.setAddress(address);
+            } else {
+                Address newAddress = new Address(null, address);
+                newAddress.setClient(client);
+                client.setAddress(newAddress);
+            }
+
+            session.merge(client);
+            session.getTransaction().commit();
+            session.detach(client);
+            return Optional.of(client.clone());
+
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+            return Optional.empty();
+        }
     }
 
     private void makeTestDependencies() {
