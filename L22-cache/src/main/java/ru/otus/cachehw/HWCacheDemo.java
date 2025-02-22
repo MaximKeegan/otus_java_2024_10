@@ -52,7 +52,10 @@ public class HWCacheDemo {
         ///
         var clientTemplate = new DataTemplateHibernate<>(Client.class);
         ///
-        var dbServiceClient = new DbServiceClientImpl(transactionManager, clientTemplate);
+
+        var hwCache = new MyCache<Long, Client>();
+
+        var dbServiceClient = new DbServiceClientImpl(transactionManager, clientTemplate, hwCache);
         var client = dbServiceClient.saveClient(new Client("dbServiceFirst"));
 
         logger.info("clientInserted:{}", client);
