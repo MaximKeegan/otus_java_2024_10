@@ -16,11 +16,7 @@ public abstract class BaseDao {
     private static final SessionFactory sessionFactory;
 
     static {
-        sessionFactory = initializeSessionFactory(
-                User.class,
-                Client.class,
-                Phone.class,
-                Address.class);
+        sessionFactory = initializeSessionFactory(User.class, Client.class, Phone.class, Address.class);
     }
 
     protected BaseDao() {}
