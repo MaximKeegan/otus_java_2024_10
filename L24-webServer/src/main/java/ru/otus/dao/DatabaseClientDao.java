@@ -1,44 +1,89 @@
 package ru.otus.dao;
 
-import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Optional;
-import org.hibernate.SessionFactory;
-import org.hibernate.boot.Metadata;
-import org.hibernate.boot.MetadataSources;
-import org.hibernate.boot.registry.StandardServiceRegistry;
-import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
-import org.hibernate.cfg.Configuration;
-import org.hibernate.engine.jdbc.spi.JdbcServices;
-import org.hibernate.engine.jdbc.spi.SqlStatementLogger;
+import java.util.function.Function;
 import ru.otus.model.Address;
 import ru.otus.model.Client;
 import ru.otus.model.Phone;
 
-public class DatabaseClientDao implements ClientsDao {
-
-    private StandardServiceRegistry serviceRegistry;
-    private Metadata metadata;
-    private SessionFactory sessionFactory;
+public class DatabaseClientDao extends BaseDao implements ClientsDao {
 
     public DatabaseClientDao() {
-        makeTestDependencies();
+        initializeTestData();
+    }
 
-        applyCustomSqlStatementLogger(new SqlStatementLogger(true, false, false, 0) {
-            @Override
-            public void logStatement(String statement) {
-                super.logStatement(statement);
-            }
+    @Override
+    public Optional<Client> findById(long id) {
+        return execute(session -> session.find(Client.class, id));
+    }
+
+    @Override
+    public List<Client> listClients() {
+        var clients = execute(session -> session.createQuery("from Client").getResultList())
+                .orElseGet(List::of);
+
+        return clients;
+    }
+
+    @Override
+    public Optional<Client> createClient(Client client) {
+        return executeInTransaction(session -> {
+            session.persist(client);
+            return client;
         });
+    }
 
-        //        var client = new Client(
-        //                null,
-        //                "Vasya",
-        //                new Address(null, "AnyStreet"),
-        //                List.of(new Phone(null, "13-555-22"), new Phone(null, "14-666-333")));
+    @Override
+    public Optional<Client> addPhone(Long clientId, String number) {
+        return executeWithClient(clientId, client -> {
+            Phone phone = new Phone(null, number);
+            phone.setClient(client);
+            client.getPhones().add(phone);
+            return client;
+        });
+    }
 
-        try (var session = sessionFactory.openSession()) {
-            session.getTransaction().begin();
+    @Override
+    public Optional<Client> deletePhone(Long clientId, String number) {
+        return executeWithClient(clientId, client -> {
+            boolean removed =
+                    client.getPhones().removeIf(phone -> phone.getNumber().equals(number));
+            return removed ? client : null;
+        });
+    }
+
+    @Override
+    public Optional<Client> updateAddress(Long clientId, String address) {
+        return executeWithClient(clientId, client -> {
+            Address clientAddress = client.getAddress();
+            if (clientAddress != null) {
+                clientAddress.setAddress(address);
+            } else {
+                Address newAddress = new Address(null, address);
+                newAddress.setClient(client);
+                client.setAddress(newAddress);
+            }
+            return client;
+        });
+    }
+
+    private Optional<Client> executeWithClient(Long clientId, Function<Client, Client> operation) {
+        return executeInTransaction(session -> {
+            Client client = session.find(Client.class, clientId);
+            if (client == null) {
+                return null;
+            }
+            Client result = operation.apply(client);
+            if (result != null) {
+                session.merge(result);
+            }
+            return result != null ? result : client;
+        });
+    }
+
+    private void initializeTestData() {
+        executeInTransaction(session -> {
             session.persist(new Client(
                     null,
                     "Vasya",
@@ -48,166 +93,7 @@ public class DatabaseClientDao implements ClientsDao {
                     new Client(null, "Vasya", new Address(null, "AnyStreet"), List.of(new Phone(null, "13-555-22"))));
             session.persist(new Client(null, "Vasya", new Address(null, "AnyStreet"), null));
             session.persist(new Client(null, "Vasya", null, null));
-
-            session.getTransaction().commit();
-
-            session.clear();
-        }
-    }
-
-    @Override
-    public Optional<Client> findById(long id) {
-        try (var session = sessionFactory.openSession()) {
-            return Optional.ofNullable(session.find(Client.class, id));
-        }
-    }
-
-    @Override
-    public List<Client> listClients() {
-        try (var session = sessionFactory.openSession()) {
-            return session.createQuery("FROM Client", Client.class).getResultList();
-        }
-    }
-
-    @Override
-    public Optional<Client> createClient(Client client) {
-        try (var session = sessionFactory.openSession()) {
-            session.getTransaction().begin();
-            session.persist(client);
-            session.getTransaction().commit();
-
-            session.clear();
-            return Optional.of(client.clone());
-        } catch (Exception e) {
-            return Optional.empty();
-        }
-    }
-
-    @Override
-    public Optional<Client> addPhone(Long clientId, String number) {
-        try (var session = sessionFactory.openSession()) {
-            session.beginTransaction();
-
-            Client client = session.find(Client.class, clientId);
-            if (client == null) {
-                session.getTransaction().rollback();
-                return Optional.empty();
-            }
-            Phone phone = new Phone(null, number);
-            phone.setClient(client);
-
-            client.getPhones().add(phone);
-
-            session.merge(client);
-
-            session.getTransaction().commit();
-
-            session.detach(client);
-            return Optional.of(client.clone());
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
-            return Optional.empty();
-        }
-    }
-
-    @Override
-    public Optional<Client> deletePhone(Long clientId, String number) {
-        try (var session = sessionFactory.openSession()) {
-            session.beginTransaction();
-
-            Client client = session.find(Client.class, clientId);
-            if (client == null) {
-                session.getTransaction().rollback();
-                return Optional.empty();
-            }
-
-            boolean removed =
-                    client.getPhones().removeIf(phone -> phone.getNumber().equals(number));
-            if (!removed) {
-                session.getTransaction().rollback();
-                return Optional.of(client);
-            }
-
-            session.merge(client);
-            session.getTransaction().commit();
-            session.detach(client);
-            return Optional.of(client.clone());
-
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
-            return Optional.empty();
-        }
-    }
-
-    @Override
-    public Optional<Client> updateAddress(Long clientId, String address) {
-        try (var session = sessionFactory.openSession()) {
-            session.beginTransaction();
-
-            Client client = session.find(Client.class, clientId);
-            if (client == null) {
-                session.getTransaction().rollback();
-                return Optional.empty();
-            }
-
-            Address clientAddress = client.getAddress();
-            if (clientAddress != null) {
-                clientAddress.setAddress(address);
-            } else {
-                Address newAddress = new Address(null, address);
-                newAddress.setClient(client);
-                client.setAddress(newAddress);
-            }
-
-            session.merge(client);
-            session.getTransaction().commit();
-            session.detach(client);
-            return Optional.of(client.clone());
-
-        } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
-            return Optional.empty();
-        }
-    }
-
-    private void makeTestDependencies() {
-        var cfg = new Configuration();
-
-        cfg.setProperty("hibernate.dialect", "org.hibernate.dialect.H2Dialect");
-        cfg.setProperty("hibernate.connection.driver_class", "org.h2.Driver");
-
-        cfg.setProperty("hibernate.connection.url", "jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1");
-
-        cfg.setProperty("hibernate.connection.username", "sa");
-        cfg.setProperty("hibernate.connection.password", "");
-
-        cfg.setProperty("hibernate.show_sql", "true");
-        cfg.setProperty("hibernate.format_sql", "false");
-        cfg.setProperty("hibernate.generate_statistics", "true");
-
-        cfg.setProperty("hibernate.hbm2ddl.auto", "create");
-        cfg.setProperty("hibernate.enable_lazy_load_no_trans", "false");
-
-        serviceRegistry = new StandardServiceRegistryBuilder()
-                .applySettings(cfg.getProperties())
-                .build();
-
-        MetadataSources metadataSources = new MetadataSources(serviceRegistry);
-        metadataSources.addAnnotatedClass(Client.class);
-        metadataSources.addAnnotatedClass(Phone.class);
-        metadataSources.addAnnotatedClass(Address.class);
-        metadata = metadataSources.getMetadataBuilder().build();
-        sessionFactory = metadata.getSessionFactoryBuilder().build();
-    }
-
-    private void applyCustomSqlStatementLogger(SqlStatementLogger customSqlStatementLogger) {
-        var jdbcServices = serviceRegistry.getService(JdbcServices.class);
-        try {
-            Field field = jdbcServices.getClass().getDeclaredField("sqlStatementLogger");
-            field.setAccessible(true);
-            field.set(jdbcServices, customSqlStatementLogger);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+            return null;
+        });
     }
 }
