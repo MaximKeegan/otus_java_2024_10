@@ -7,10 +7,7 @@ import org.eclipse.jetty.security.HashLoginService;
 import org.eclipse.jetty.security.LoginService;
 import org.eclipse.jetty.util.resource.PathResourceFactory;
 import org.eclipse.jetty.util.resource.Resource;
-import ru.otus.dao.ClientsDao;
-import ru.otus.dao.DatabaseClientDao;
-import ru.otus.dao.InMemoryUserDao;
-import ru.otus.dao.UserDao;
+import ru.otus.dao.*;
 import ru.otus.helpers.FileSystemHelper;
 import ru.otus.server.UsersWebServer;
 import ru.otus.server.UsersWebServerWithBasicSecurity;
@@ -36,7 +33,7 @@ public class WebServerWithBasicSecurityDemo {
     private static final String REALM_NAME = "AnyRealm";
 
     public static void main(String[] args) throws Exception {
-        UserDao userDao = new InMemoryUserDao();
+        UserDao userDao = new DatabaseUserDao();
         ClientsDao clientsDao = new DatabaseClientDao();
         Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().create();
         TemplateProcessor templateProcessor = new TemplateProcessorImpl(TEMPLATES_DIR);
