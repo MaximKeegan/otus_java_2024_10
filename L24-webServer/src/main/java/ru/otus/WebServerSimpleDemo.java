@@ -2,8 +2,7 @@ package ru.otus;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import ru.otus.dao.InMemoryUserDao;
-import ru.otus.dao.UserDao;
+import ru.otus.dao.*;
 import ru.otus.server.UsersWebServer;
 import ru.otus.server.UsersWebServerSimple;
 import ru.otus.services.TemplateProcessor;
@@ -26,11 +25,14 @@ public class WebServerSimpleDemo {
     private static final String TEMPLATES_DIR = "/templates/";
 
     public static void main(String[] args) throws Exception {
-        UserDao userDao = new InMemoryUserDao();
+        UserDao userDao = new DatabaseUserDao();
+        ClientsDao clientsDao = new DatabaseClientDao();
+
         Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().create();
         TemplateProcessor templateProcessor = new TemplateProcessorImpl(TEMPLATES_DIR);
 
-        UsersWebServer usersWebServer = new UsersWebServerSimple(WEB_SERVER_PORT, userDao, gson, templateProcessor);
+        UsersWebServer usersWebServer =
+                new UsersWebServerSimple(WEB_SERVER_PORT, userDao, clientsDao, gson, templateProcessor);
 
         usersWebServer.start();
         usersWebServer.join();

@@ -2,7 +2,9 @@ package ru.otus;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import ru.otus.dao.InMemoryUserDao;
+import ru.otus.dao.ClientsDao;
+import ru.otus.dao.DatabaseClientDao;
+import ru.otus.dao.DatabaseUserDao;
 import ru.otus.dao.UserDao;
 import ru.otus.server.UsersWebServer;
 import ru.otus.server.UsersWebServerWithFilterBasedSecurity;
@@ -28,13 +30,14 @@ public class WebServerWithFilterBasedSecurityDemo {
     private static final String TEMPLATES_DIR = "/templates/";
 
     public static void main(String[] args) throws Exception {
-        UserDao userDao = new InMemoryUserDao();
+        UserDao userDao = new DatabaseUserDao();
+        ClientsDao clientsDao = new DatabaseClientDao();
         Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().create();
         TemplateProcessor templateProcessor = new TemplateProcessorImpl(TEMPLATES_DIR);
         UserAuthService authService = new UserAuthServiceImpl(userDao);
 
         UsersWebServer usersWebServer = new UsersWebServerWithFilterBasedSecurity(
-                WEB_SERVER_PORT, authService, userDao, gson, templateProcessor);
+                WEB_SERVER_PORT, authService, userDao, clientsDao, gson, templateProcessor);
 
         usersWebServer.start();
         usersWebServer.join();

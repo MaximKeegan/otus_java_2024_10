@@ -5,35 +5,25 @@ import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.transaction.SystemException;
 import java.io.BufferedReader;
 import java.io.IOException;
-import ru.otus.dao.UserDao;
-import ru.otus.model.User;
+import ru.otus.dao.ClientsDao;
+import ru.otus.model.RequestUpdateAddressModel;
 
 @SuppressWarnings({"java:S1989"})
-public class UsersApiServlet extends HttpServlet {
+public class ClientsAddressApiServlet extends HttpServlet {
 
     private static final int ID_PATH_PARAM_POSITION = 1;
 
-    private final transient UserDao userDao;
+    private final transient ClientsDao clientsDao;
     private final transient Gson gson;
 
-    public UsersApiServlet(UserDao userDao, Gson gson) {
-        this.userDao = userDao;
+    public ClientsAddressApiServlet(ClientsDao clientsDao, Gson gson) {
+        this.clientsDao = clientsDao;
         this.gson = gson;
     }
 
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        User user = userDao.findById(extractIdFromRequest(request)).orElse(null);
-
-        response.setContentType("application/json;charset=UTF-8");
-        ServletOutputStream out = response.getOutputStream();
-        out.print(gson.toJson(user));
-    }
-
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    protected void doPut(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType("application/json;charset=UTF-8");
 
         StringBuilder sb = new StringBuilder();
@@ -45,17 +35,18 @@ public class UsersApiServlet extends HttpServlet {
         }
 
         Gson gson = new Gson();
-        User user = gson.fromJson(sb.toString(), User.class);
+        var requestModel = gson.fromJson(sb.toString(), RequestUpdateAddressModel.class);
 
-        try {
-            userDao.saveUser(user);
-        } catch (SystemException e) {
-            response.sendError(
-                    HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal server error: " + e.getMessage());
+        var clientOptional = clientsDao.updateAddress(requestModel.getClientId(), requestModel.getAddress());
+
+        if (clientOptional.isPresent()) {
+            response.setStatus(HttpServletResponse.SC_CREATED);
+        } else {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         }
 
         ServletOutputStream out = response.getOutputStream();
-        out.print(gson.toJson(user));
+        //        out.print(gson.toJson(clientOptional));
     }
 
     private long extractIdFromRequest(HttpServletRequest request) {
