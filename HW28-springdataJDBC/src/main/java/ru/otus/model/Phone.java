@@ -25,4 +25,9 @@ public class Phone {
     public Phone(String number) {
         this.number = number;
     }
+
+    public Phone(String number, Long clientId) {
+        this.number = number;
+        this.clientId = clientId;
+    }
 }

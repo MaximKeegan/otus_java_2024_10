@@ -9,7 +9,6 @@ public class JsonErrorResponse {
         this.details = details;
     }
 
-    // Геттеры
     public String getMessage() {
         return message;
     }
