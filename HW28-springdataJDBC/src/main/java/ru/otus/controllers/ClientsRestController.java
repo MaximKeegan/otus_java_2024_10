@@ -62,8 +62,7 @@ public class ClientsRestController {
         }
 
         if (request.getNumber() == null || request.getNumber().trim().isEmpty()) {
-            return ResponseEntity.status(400)
-                    .body(new JsonResponse("Invalid input", "Phone number cannot be empty"));
+            return ResponseEntity.status(400).body(new JsonResponse("Invalid input", "Phone number cannot be empty"));
         }
 
         Phone phone = new Phone(request.getNumber(), clientId);
