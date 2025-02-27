@@ -1,0 +1,93 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Пользователи</title>
+
+    <style>
+        th, td {
+            border: 1px solid black;
+        }
+    </style>
+
+    <script>
+        function getUserById() {
+            const userIdTextBox = document.getElementById('userIdTextBox');
+            const userDataContainer = document.getElementById('userDataContainer');
+            const id = userIdTextBox.value;
+            fetch('api/users/' + id)
+                .then(response => response.json())
+                .then(user => userDataContainer.innerHTML = JSON.stringify(user));
+        }
+
+        function createUser() {
+            const userNameTextBox = document.getElementById('userNameTextBox');
+            const userLoginTextBox = document.getElementById('userLoginTextBox');
+            const userPasswordTextBox = document.getElementById('userPasswordTextBox');
+            const userCreatedContainer = document.getElementById('userCreatedContainer');
+
+            const userData = {
+                name: userNameTextBox.value,
+                login: userLoginTextBox.value,
+                password: userPasswordTextBox.value
+            };
+
+            fetch('api/users', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(userData)
+            })
+                .then(response => response.json())
+                .then(user => {
+                    userCreatedContainer.innerHTML = JSON.stringify(user);
+                    setTimeout(function() {
+                        document.location.reload();
+                    }, 1000);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    userCreatedContainer.innerHTML = 'Error creating user';
+                });
+        }
+    </script>
+</head>
+
+<body>
+
+<p><a href="/clients">Управление клиентами</a></p>
+
+<h4>Получить пользователя по id</h4>
+<input type="text" id="userIdTextBox" value="3" placeholder="Введите id пользователя">
+<button onclick="getUserById()">Получить</button>
+<pre id="userDataContainer"></pre>
+
+<h4>Создать пользователя</h4>
+<input type="text" id="userNameTextBox" placeholder="Введите имя пользователя">
+<input type="text" id="userLoginTextBox" placeholder="Введите логин пользователя">
+<input type="text" id="userPasswordTextBox" placeholder="Введите пароль пользователя">
+<button onclick="createUser()">Создать</button>
+<pre id="userCreatedContainer"></pre>
+
+
+<h4>Все пользователи</h4>
+
+<table style="width: 400px" >
+    <thead>
+    <tr>
+        <td style="width: 50px">Id</td>
+        <td style="width: 150px">Имя</td>
+        <td style="width: 100px">Логин</td>
+        <td style="width: 100px">Пароль</td>
+    </tr>
+    </thead>
+    <tbody>
+        <tr th:each="user: ${users}">
+            <td th:text="${user.id}"/>
+            <td th:text="${user.name}"/>
+            <td th:text="${user.login}"/>
+            <td th:text="${user.password}"/>
+        </tr>
+    </tbody>
+</table>
+</body>
+</html>

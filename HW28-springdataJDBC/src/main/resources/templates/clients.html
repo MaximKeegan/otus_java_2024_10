@@ -1,0 +1,213 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Клиенты</title>
+    <style>
+        th, td {
+            border: 1px solid black;
+        }
+    </style>
+    <script>
+
+        function updateAddress(clientId, address) {
+            var newAddress = prompt("Введите новый адрес: ", address);
+
+            const userData = {
+                clientId: clientId,
+                address: newAddress
+            };
+
+            fetch('api/clients/address', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(userData)
+            })
+                .then(client => {
+                    // userCreatedContainer.innerHTML = JSON.stringify(client);
+                    window.location.reload();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    userCreatedContainer.innerHTML = 'Error edit address';
+                });
+
+        }
+
+        function addPhone(clientId) {
+            var number = prompt("Введите номер телефона: ");
+
+            const userData = {
+                number: number
+            };
+
+            fetch('api/clients/' + clientId + '/phone', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(userData)
+            })
+                // .then(response => response.json())
+                .then(client => {
+                    // userCreatedContainer.innerHTML = JSON.stringify(client);
+                    window.location.reload();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    userCreatedContainer.innerHTML = 'Error adding phone';
+                });
+        }
+
+        function deletePhone(clientId, phoneId) {
+            const userData = {
+                clientId: clientId,
+                phoneId: phoneId
+            };
+
+            fetch('api/clients/' + clientId + '/phone/' + phoneId, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(userData)
+            })
+                .then(client => {
+                    window.location.reload();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    userCreatedContainer.innerHTML = 'Error deleting phone';
+                });
+        }
+
+        function deleteClient(clientId) {
+            fetch('api/clients/' + clientId , {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+                .then(client => {
+                    window.location.reload();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    userCreatedContainer.innerHTML = 'Error deleting client';
+                });
+        }
+
+
+        function createClient() {
+            const clientNameTextBox = document.getElementById('clientNameTextBox');
+            const clientAddressTextBox = document.getElementById('clientAddressTextBox');
+            const clientPhoneTextBox = document.getElementById('clientPhoneTextBox');
+            const userCreatedContainer = document.getElementById('userCreatedContainer');
+
+            const userData = {
+                name: clientNameTextBox.value,
+                address: clientAddressTextBox.value,
+                number: clientPhoneTextBox.value
+            };
+
+            fetch('api/clients', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(userData)
+            })
+                .then(user => {
+                    window.location.reload();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    userCreatedContainer.innerHTML = 'Error creating client';
+                });
+        }
+        function editClient(clientId, field, value) {
+            var valueUpdated = prompt("Введите значение: ", value);
+
+            const userData = {
+                value: valueUpdated
+            };
+
+            fetch('api/clients/' + clientId + '/' + field, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(userData)
+            })
+                .then(user => {
+                    window.location.reload();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    userCreatedContainer.innerHTML = 'Error creating client';
+                });
+        }
+    </script>
+</head>
+
+<body>
+<pre id = "userDataContainer"></pre>
+
+<h4>Создать клиента</h4>
+<input type="text" id = "clientNameTextBox" placeholder="Введите имя клиента">
+<input type="text" id = "clientAddressTextBox" placeholder="Введите адрес клиента">
+<input type="text" id = "clientPhoneTextBox" placeholder="Введите телефон клиента">
+<button onclick="createClient()">Создать</button>
+<pre id = "userCreatedContainer"></pre>
+
+
+<h4>Список клиентов</h4>
+<table>
+    <thead>
+        <tr>
+            <td style="width: 50px">Id</td>
+            <td style="width: 150px">Имя</td>
+            <td style="width: 150px">Адрес</td>
+            <td>Телефоны</td>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="client : ${clients}">
+            <td>
+                <span th:text="${client.id}"></span>
+                <a href="#" th:text="удалить" th:onclick="'deleteClient(' + ${client.id} + ');'"></a>
+            </td>
+            <td>
+                <span th:text="${client.name}"></span>
+                <a href="#" th:text="изменить" th:onclick="editClient([[${client.id}]], 'name', [[${client.name}]])"></a>
+            </td>
+            <td>
+                <span th:text="${client.address.address}"></span>
+                <a href="#" th:text="изменить" th:onclick="editClient([[${client.id}]], 'address', [[${client.address.address}]])"></a>
+
+            </td>
+            <td>
+                <p th:each="phone : ${client.phones}">
+                    <span th:text="${phone.number} + ' '"></span>
+                    <a href="#" th:text="удалить" th:onclick="'deletePhone(' + ${client.id} + ', ' + ${phone.id}+ ');'"></a>
+                </p>
+                <a href="#" th:text="добавить" th:onclick="'addPhone(' + ${client.id} + ');'"></a>
+            </td>
+        </tr>
+
+<!--    <#list clients as client>-->
+<!--        <tr>-->
+<!--            <td>${client.id}</td>-->
+<!--            <td>${client.name}</td>-->
+<!--            <td>${client.listAddress()} <a href="#" onclick="updateAddress(${client.id}, '${client.listAddress()}');">изменить</a></td>-->
+<!--            <td><#list client.phones as phone> ${phone.number} <a href="#" onclick="deletePhone(${client.id}, '${phone.number}');">удалить</a> <br /></#list> <a href="#" onclick="addPhone(${client.id});">добавить</a></td>-->
+<!--        </tr>-->
+<!--    <#else>-->
+<!--        <tr>-->
+<!--            <td colspan="2">пусто</td>-->
+<!--        </tr>-->
+<!--    </#list>-->
+    </tbody>
+</table>
+</body>
+</html>
