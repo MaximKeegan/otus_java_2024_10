@@ -4,7 +4,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.otus.model.JsonErrorResponse;
+import ru.otus.model.JsonResponse;
 import ru.otus.model.RequestCreateUser;
 import ru.otus.model.User;
 import ru.otus.repository.UserRepository;
@@ -24,7 +24,7 @@ public class UsersRestController {
     public ResponseEntity<?> getUserById(@PathVariable Long id) {
         Optional<User> user = userRepository.findById(id);
         if (user.isEmpty()) {
-            JsonErrorResponse error = new JsonErrorResponse("User not found", "No user exists with ID: " + id);
+            JsonResponse error = new JsonResponse("User not found", "No user exists with ID: " + id);
             return ResponseEntity.status(404).body(error);
         }
 
@@ -34,7 +34,7 @@ public class UsersRestController {
     @PostMapping
     public ResponseEntity<?> createUser(@RequestBody RequestCreateUser request) {
         if (request.getName() == null || request.getName().trim().isEmpty()) {
-            JsonErrorResponse error = new JsonErrorResponse("Invalid input", "User name cannot be empty");
+            JsonResponse error = new JsonResponse("Invalid input", "User name cannot be empty");
             return ResponseEntity.status(400).body(error); // 400 Bad Request
         }
 

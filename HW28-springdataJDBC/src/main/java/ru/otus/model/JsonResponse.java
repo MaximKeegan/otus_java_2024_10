@@ -1,10 +1,10 @@
 package ru.otus.model;
 
-public class JsonErrorResponse {
+public class JsonResponse {
     private String message;
     private String details;
 
-    public JsonErrorResponse(String message, String details) {
+    public JsonResponse(String message, String details) {
         this.message = message;
         this.details = details;
     }

@@ -27,7 +27,7 @@ public class ClientsRestController {
     @PostMapping
     public ResponseEntity<?> createClient(@RequestBody RequestCreateClient request) {
         if (request.getName() == null || request.getName().trim().isEmpty()) {
-            JsonErrorResponse error = new JsonErrorResponse("Invalid input", "Client name cannot be empty");
+            JsonResponse error = new JsonResponse("Invalid input", "Client name cannot be empty");
             return ResponseEntity.status(400).body(error); // 400 Bad Request
         }
 
@@ -45,25 +45,25 @@ public class ClientsRestController {
     public ResponseEntity<?> deletePhone(@PathVariable Long clientId, @PathVariable Long phoneId) {
         Optional<Client> client = clientRepository.findById(clientId);
         if (client.isEmpty()) {
-            JsonErrorResponse error = new JsonErrorResponse("Invalid input", "Client not found");
+            JsonResponse error = new JsonResponse("Invalid input", "Client not found");
             return ResponseEntity.status(404).body(error);
         }
 
         phoneRepository.deleteById(phoneId);
-        return ResponseEntity.status(200).body(new JsonErrorResponse("Phone deleted", "Phone Deleted"));
+        return ResponseEntity.status(200).body(new JsonResponse("Phone deleted", "Phone Deleted"));
     }
 
     @PostMapping("/{clientId}/phone")
     public ResponseEntity<?> addPhone(@PathVariable Long clientId, @RequestBody RequestAddPhone request) {
         Optional<Client> client = clientRepository.findById(clientId);
         if (client.isEmpty()) {
-            JsonErrorResponse error = new JsonErrorResponse("Invalid input", "Client not found");
+            JsonResponse error = new JsonResponse("Invalid input", "Client not found");
             return ResponseEntity.status(404).body(error);
         }
 
         if (request.getNumber() == null || request.getNumber().trim().isEmpty()) {
             return ResponseEntity.status(400)
-                    .body(new JsonErrorResponse("Invalid input", "Phone number cannot be empty"));
+                    .body(new JsonResponse("Invalid input", "Phone number cannot be empty"));
         }
 
         Phone phone = new Phone(request.getNumber(), clientId);
@@ -76,12 +76,12 @@ public class ClientsRestController {
     public ResponseEntity<?> deleteClient(@PathVariable Long clientId) {
         Optional<Client> client = clientRepository.findById(clientId);
         if (client.isEmpty()) {
-            JsonErrorResponse error = new JsonErrorResponse("Invalid input", "Client not found");
+            JsonResponse error = new JsonResponse("Invalid input", "Client not found");
             return ResponseEntity.status(404).body(error);
         }
 
         clientRepository.deleteById(clientId);
-        return ResponseEntity.status(201).body(new JsonErrorResponse("Client deleted", "Client Deleted"));
+        return ResponseEntity.status(201).body(new JsonResponse("Client deleted", "Client Deleted"));
     }
 
     @PutMapping("/{clientId}/{field}")
@@ -89,7 +89,7 @@ public class ClientsRestController {
             @PathVariable Long clientId, @PathVariable String field, @RequestBody RequestEditClient request) {
         Optional<Client> clientOpt = clientRepository.findById(clientId);
         if (clientOpt.isEmpty()) {
-            JsonErrorResponse error = new JsonErrorResponse("Invalid input", "Client not found");
+            JsonResponse error = new JsonResponse("Invalid input", "Client not found");
             return ResponseEntity.status(404).body(error);
         }
 
@@ -98,7 +98,7 @@ public class ClientsRestController {
         if (field.equals("name")) {
             client.setName(request.getValue());
             clientRepository.save(client);
-            return ResponseEntity.status(201).body(new JsonErrorResponse("Client name updated", "Client name updated"));
+            return ResponseEntity.status(201).body(new JsonResponse("Client name updated", "Client name updated"));
         }
 
         if (field.equals("address")) {
@@ -106,15 +106,15 @@ public class ClientsRestController {
                     addressRepository.findById(client.getAddress().getId());
             if (addressOpt.isEmpty()) {
                 return ResponseEntity.status(404)
-                        .body(new JsonErrorResponse(
+                        .body(new JsonResponse(
                                 "Address not found",
                                 "Address with ID: " + client.getAddress().getId() + " not found"));
             }
             Address address = addressOpt.get();
             address.setAddress(request.getValue());
             Address updatedAddress = addressRepository.save(address);
-            return ResponseEntity.status(201).body(new JsonErrorResponse("Address updated", "Address updated"));
+            return ResponseEntity.status(201).body(new JsonResponse("Address updated", "Address updated"));
         }
-        return ResponseEntity.status(400).body(new JsonErrorResponse("bad Request", "Bad request"));
+        return ResponseEntity.status(400).body(new JsonResponse("bad Request", "Bad request"));
     }
 }
