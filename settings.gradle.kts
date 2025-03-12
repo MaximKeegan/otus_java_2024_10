@@ -50,6 +50,8 @@ include ("HW28-springDataJDBC")
 include ("L29-threads")
 include ("L30-JMM")
 include ("L31-executors")
+include ("HW31-executors")
+
 
 pluginManagement {
     val jgitver: String by settings
