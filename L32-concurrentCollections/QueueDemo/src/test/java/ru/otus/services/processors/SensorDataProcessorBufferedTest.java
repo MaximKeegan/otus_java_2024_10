@@ -45,7 +45,6 @@ class SensorDataProcessorBufferedTest {
     }
 
     @Test
-    //    @Disabled("Удалить до начала тестирования")
     void shouldExecFlushWhenBufferOverFlow() {
         List<SensorData> sensorDataList = getSensorDataForTest(BUFFER_SIZE + BUFFER_SIZE / 2);
 
@@ -61,7 +60,6 @@ class SensorDataProcessorBufferedTest {
     }
 
     @Test
-    //    @Disabled("Удалить до начала тестирования")
     void shouldFlushBufferDataSortedByTime() {
         var sensorDataList = new ArrayList<>(getSensorDataForTest(BUFFER_SIZE - 1));
         var originalSensorDataList = List.copyOf(sensorDataList);
@@ -79,7 +77,6 @@ class SensorDataProcessorBufferedTest {
     }
 
     @Test
-    // @Disabled("Удалить до начала тестирования")
     void shouldFlushTheRestOfTheBufferDataWhenOnProcessingEndFired() {
         List<SensorData> sensorDataList = getSensorDataForTest(BUFFER_SIZE + BUFFER_SIZE / 2);
         sensorDataList.forEach(sensorData -> processor.process(sensorData));
