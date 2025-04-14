@@ -3,6 +3,7 @@ package ru.otus.services.processors;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.otus.api.SensorDataProcessor;
@@ -16,35 +17,29 @@ public class SensorDataProcessorBuffered implements SensorDataProcessor {
 
     private final int bufferSize;
     private final SensorDataBufferedWriter writer;
-    private final List<SensorData> dataBuffer;
+    private final ArrayBlockingQueue<SensorData> dataBuffer;
 
     public SensorDataProcessorBuffered(int bufferSize, SensorDataBufferedWriter writer) {
         this.bufferSize = bufferSize;
         this.writer = writer;
-        this.dataBuffer = new ArrayList<>();
+        this.dataBuffer = new ArrayBlockingQueue<>(bufferSize);
     }
 
     @Override
     public void process(SensorData data) {
-        synchronized (dataBuffer) {
-            dataBuffer.add(data);
-            if (dataBuffer.size() >= bufferSize) {
-                flush();
-            }
+        dataBuffer.add(data);
+        if (dataBuffer.size() >= bufferSize) {
+            flush();
         }
     }
 
     public void flush() {
-        synchronized (dataBuffer) {
-            if (dataBuffer.isEmpty()) {
-                return;
-            }
+        List<SensorData> dataToFlush = new ArrayList<>();
+        int drained = dataBuffer.drainTo(dataToFlush, bufferSize);
+        if (drained > 0) {
             try {
-                List<SensorData> dataToFlush =
-                        new ArrayList<>(dataBuffer.subList(0, Math.min(bufferSize, dataBuffer.size())));
                 dataToFlush.sort(Comparator.comparing(SensorData::getMeasurementTime));
                 writer.writeBufferedData(dataToFlush);
-                dataBuffer.subList(0, Math.min(bufferSize, dataBuffer.size())).clear();
             } catch (Exception e) {
                 log.error("Ошибка в процессе записи буфера", e);
             }
