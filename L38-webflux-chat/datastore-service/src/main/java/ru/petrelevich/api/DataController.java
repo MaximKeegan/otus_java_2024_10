@@ -1,5 +1,7 @@
 package ru.petrelevich.api;
 
+import static ru.petrelevich.config.ApplConfig.SPECIAL_ROOM_ID;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -20,7 +22,6 @@ public class DataController {
     private static final Logger log = LoggerFactory.getLogger(DataController.class);
     private final DataStore dataStore;
     private final Scheduler workerPool;
-    private static final String SPECIAL_ROOM_ID = "1408";
 
     public DataController(DataStore dataStore, Scheduler workerPool) {
         this.dataStore = dataStore;
