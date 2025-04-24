@@ -51,6 +51,7 @@ public class DataController {
 
     @GetMapping(value = "/msg/{roomId}", produces = MediaType.APPLICATION_NDJSON_VALUE)
     public Flux<MessageDto> getMessagesByRoomId(@PathVariable("roomId") String roomId) {
+        log.info("getMessagesByRoomId roomId:{}", roomId);
         return Mono.just(roomId)
                 .doOnNext(room -> log.info("getMessagesByRoomId, room:{}", room))
                 .flatMapMany(dataStore::loadMessages)
