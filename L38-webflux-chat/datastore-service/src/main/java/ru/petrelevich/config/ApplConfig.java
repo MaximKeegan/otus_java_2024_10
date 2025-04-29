@@ -14,7 +14,6 @@ import reactor.util.annotation.Nullable;
 @Configuration
 public class ApplConfig {
     private static final int THREAD_POOL_SIZE = 2;
-    public static final String SPECIAL_ROOM_ID = "1408";
 
     @Bean(destroyMethod = "close")
     public NioEventLoopGroup eventLoopGroup() {

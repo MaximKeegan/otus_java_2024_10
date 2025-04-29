@@ -30,11 +30,6 @@ public class DataController {
 
     @PostMapping(value = "/msg/{roomId}")
     public Mono<Long> messageFromChat(@PathVariable("roomId") String roomId, @RequestBody MessageDto messageDto) {
-        if (roomId.equals(SPECIAL_ROOM_ID)) {
-            log.warn("Attempt to write to read-only room: {}", SPECIAL_ROOM_ID);
-            return Mono.error(new IllegalArgumentException("Writing to room " + SPECIAL_ROOM_ID + " is not allowed"));
-        }
-
         var messageStr = messageDto.messageStr();
 
         var msgId = Mono.just(new Message(null, roomId, messageStr))
