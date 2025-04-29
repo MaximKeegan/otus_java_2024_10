@@ -1,7 +1,5 @@
 package ru.petrelevich.api;
 
-import static ru.petrelevich.config.ApplConfig.SPECIAL_ROOM_ID;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
