@@ -63,6 +63,7 @@ include ("L34-multiprocess:processes-demo")
 include ("L34-multiprocess:sockets-demo")
 include ("L34-multiprocess:rmi-demo")
 include ("L34-multiprocess:grpc-demo")
+include ("HW34-grpc")
 
 include ("L35-rabbitMQ:allServicesModels")
 include ("L35-rabbitMQ:approvalService")
